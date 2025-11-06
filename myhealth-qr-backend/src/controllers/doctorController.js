@@ -78,10 +78,20 @@ export const updateDoctorProfile = async (req, res) => {
 
 /**
  * Scanner le QR Code d'un patient et envoyer une demande d'accès
+ * IMPORTANT: Seulement pour les médecins authentifiés
  */
 export const scanQRCode = async (req, res) => {
   try {
     const { qrData, reason } = req.body;
+
+    // Vérifier que l'utilisateur est bien un médecin
+    if (req.user.role !== 'doctor') {
+      return res.status(403).json({
+        success: false,
+        message: 'Accès refusé: Seuls les médecins peuvent scanner les QR codes patients',
+        error: 'UNAUTHORIZED_ROLE'
+      });
+    }
 
     // Vérifier le QR code
     const decoded = verifyQRCode(qrData);
@@ -89,7 +99,14 @@ export const scanQRCode = async (req, res) => {
 
     // Vérifier que le patient existe
     const patient = await Patient.findOne({
-      where: { id: patientId, qrCodeToken: token }
+      where: { id: patientId, qrCodeToken: token },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email']
+        }
+      ]
     });
 
     if (!patient) {
@@ -100,7 +117,16 @@ export const scanQRCode = async (req, res) => {
     }
 
     // Récupérer le profil médecin
-    const doctor = await Doctor.findOne({ where: { userId: req.user.id } });
+    const doctor = await Doctor.findOne({ 
+      where: { userId: req.user.id },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName']
+        }
+      ]
+    });
 
     if (!doctor) {
       return res.status(404).json({
@@ -121,7 +147,9 @@ export const scanQRCode = async (req, res) => {
     if (existingRequest) {
       return res.status(400).json({
         success: false,
-        message: 'Une demande d\'accès existe déjà pour ce patient',
+        message: existingRequest.status === 'approved' 
+          ? 'Vous avez déjà accès au dossier de ce patient'
+          : 'Une demande d\'accès est déjà en attente pour ce patient',
         data: existingRequest
       });
     }
@@ -136,8 +164,13 @@ export const scanQRCode = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Demande d\'accès envoyée au patient',
-      data: accessRequest
+      message: 'Demande d\'accès envoyée au patient avec succès',
+      data: {
+        accessRequest,
+        patient: {
+          user: patient.user
+        }
+      }
     });
   } catch (error) {
     console.error('Erreur:', error);

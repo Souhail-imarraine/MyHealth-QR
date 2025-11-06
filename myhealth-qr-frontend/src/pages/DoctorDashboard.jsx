@@ -23,6 +23,7 @@ import DoctorHome from '../components/doctor/DoctorHome';
 import DoctorScanner from '../components/doctor/DoctorScanner';
 import DoctorPatients from '../components/doctor/DoctorPatients';
 import DoctorProfile from '../components/doctor/DoctorProfile';
+import PatientMedicalRecord from '../components/doctor/PatientMedicalRecord';
 
 const DoctorDashboard = () => {
   const location = useLocation();
@@ -192,6 +193,7 @@ const DoctorDashboard = () => {
             <Route path="/dashboard" element={<DoctorHome />} />
             <Route path="/scan" element={<DoctorScanner />} />
             <Route path="/patients" element={<DoctorPatients />} />
+            <Route path="/patients/:patientId" element={<PatientMedicalRecord />} />
             <Route path="/profile" element={<DoctorProfile />} />
           </Routes>
         </main>

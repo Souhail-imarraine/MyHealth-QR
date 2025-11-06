@@ -19,6 +19,12 @@ export const doctorService = {
     return response.data;
   },
 
+  // Alias pour scanner un QR Code patient
+  scanPatientQR: async (qrData, reason) => {
+    const response = await api.post('/doctor/scan-qr', { qrData, reason });
+    return response.data;
+  },
+
   // Récupérer les demandes d'accès
   getAccessRequests: async () => {
     const response = await api.get('/doctor/access-requests');
@@ -43,3 +49,17 @@ export const doctorService = {
     return response.data;
   },
 };
+
+// Exporter aussi les fonctions individuellement
+export const {
+  getProfile,
+  updateProfile,
+  scanQRCode,
+  scanPatientQR,
+  getAccessRequests,
+  getMyPatients,
+  getPatientMedicalRecord,
+  addMedicalRecord
+} = doctorService;
+
+export default doctorService;

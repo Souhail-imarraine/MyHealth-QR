@@ -1,4 +1,4 @@
-import { Patient, User, MedicalRecord, AccessRequest } from '../models/index.js';
+import { Patient, User, MedicalRecord, AccessRequest, Doctor } from '../models/index.js';
 import { generateQRCode } from '../utils/qrCodeGenerator.js';
 
 /**
@@ -207,26 +207,46 @@ export const getMedicalRecords = async (req, res) => {
  */
 export const getAccessRequests = async (req, res) => {
   try {
+    console.log('🔍 Recherche du patient pour userId:', req.user.id);
     const patient = await Patient.findOne({ where: { userId: req.user.id } });
 
     if (!patient) {
+      console.log('❌ Patient non trouvé');
       return res.status(404).json({
         success: false,
         message: 'Profil patient non trouvé'
       });
     }
 
+    console.log('✅ Patient trouvé:', patient.id);
+    console.log('🔍 Recherche des demandes d\'accès...');
+    
     const requests = await AccessRequest.findAll({
       where: { patientId: patient.id },
+      include: [
+        {
+          model: Doctor,
+          as: 'doctor',
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'firstName', 'lastName', 'email']
+            }
+          ]
+        }
+      ],
       order: [['requestDate', 'DESC']]
     });
 
+    console.log('✅ Demandes trouvées:', requests.length);
     res.status(200).json({
       success: true,
       data: requests
     });
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('❌ Erreur complète:', error);
+    console.error('❌ Stack trace:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des demandes',
