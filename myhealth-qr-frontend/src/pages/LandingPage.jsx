@@ -53,7 +53,7 @@ const LandingPage = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-secondary-900 mb-4 sm:mb-6 leading-tight">
               {t('heroTitle')}
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-gradient font-semibold mb-6 sm:mb-8">
+            <p className="text-lg sm:text-xl md:text-2x font-semibold mb-6 sm:mb-8">
               {t('heroSubtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-12">
