@@ -16,6 +16,8 @@ import { useTranslation } from '../utils/useTranslation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import MobileBottomNav from '../components/MobileBottomNav';
 import toast from 'react-hot-toast';
+import socketService from '../services/socketService';
+import notificationService from '../services/notificationService';
 
 // Composants des pages
 import PatientHome from '../components/patient/PatientHome';
@@ -30,6 +32,41 @@ const PatientDashboard = () => {
   const { user, logout } = useAuthStore();
   const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // Connexion Socket.IO et écoute des notifications
+  useEffect(() => {
+    if (user && user.id) {
+      // Connecter au serveur Socket.IO
+      socketService.connect(user.id);
+
+      // Demander la permission pour les notifications système
+      notificationService.requestPermission();
+
+      // Écouter les nouvelles demandes d'accès
+      socketService.on('new_access_request', (data) => {
+        console.log('📬 Nouvelle demande d\'accès reçue:', data);
+        
+        // Afficher la notification avec son
+        notificationService.showAccessRequestNotification(data);
+        
+        // Incrémenter le compteur de notifications non lues
+        setUnreadNotifications(prev => prev + 1);
+      });
+
+      // Nettoyer à la déconnexion
+      return () => {
+        socketService.off('new_access_request');
+      };
+    }
+  }, [user]);
+
+  // Réinitialiser le compteur quand on visite la page des demandes
+  useEffect(() => {
+    if (location.pathname === '/patient/requests') {
+      setUnreadNotifications(0);
+    }
+  }, [location.pathname]);
 
   const menuItems = [
     { path: '/patient/dashboard', icon: LayoutDashboard, label: t('dashboard') },
@@ -52,20 +89,37 @@ const PatientDashboard = () => {
         <div className="flex flex-col flex-1">
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b border-secondary-200 bg-gradient-to-r from-accent-50 to-white">
-            <span className="ltr:ml-3 rtl:mr-3 text-xl font-bold text-gradient">HealthPass</span>
+            <img 
+              src="/logo.png" 
+              alt="HealthPass Logo" 
+              className="h-8 sm:h-10 w-auto object-contain"
+            />
           </div>
 
           {/* User Info */}
           <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0">
-                {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
+                <img 
+                  src="/patient.png" 
+                  alt="User Profile" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-secondary-900 truncate">{user?.firstName} {user?.lastName}</p>
                 <p className="text-sm text-secondary-500">{t('patient')}</p>
               </div>
             </div>
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center w-full px-3 py-2 text-red-600 bg-white hover:bg-red-50 rounded-lg transition-all active:scale-95 text-sm font-medium shadow-sm"
+            >
+              <LogOut className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+              {t('logout')}
+            </button>
           </div>
 
           {/* Navigation */}
@@ -73,6 +127,7 @@ const PatientDashboard = () => {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+              const isBellIcon = item.icon === Bell;
               
               return (
                 <Link
@@ -84,23 +139,19 @@ const PatientDashboard = () => {
                       : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                  <div className="relative">
+                    <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                    {isBellIcon && unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                        {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                      </span>
+                    )}
+                  </div>
                   {item.label}
                 </Link>
               );
             })}
           </nav>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-secondary-200">
-            <button
-              onClick={handleLogout}
-              className="flex items-center w-full px-4 py-3 text-secondary-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all active:scale-95"
-            >
-              <LogOut className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
-              {t('logout')}
-            </button>
-          </div>
         </div>
       </aside>
 
@@ -112,10 +163,11 @@ const PatientDashboard = () => {
               {/* Header */}
               <div className="flex items-center justify-between h-16 px-6 border-b border-secondary-200 bg-gradient-to-r from-accent-50 to-white">
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
-                    <Heart className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-xl font-bold text-gradient">HealthPass</span>
+                  <img 
+                    src="/logo.png" 
+                    alt="HealthPass Logo" 
+                    className="h-8 w-auto object-contain"
+                  />
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="active:scale-95 transition-transform">
                   <X className="w-6 h-6 text-secondary-600" />
@@ -124,15 +176,28 @@ const PatientDashboard = () => {
 
               {/* User Info */}
               <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0">
-                    {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
+                    <img 
+                      src="/patient.png" 
+                      alt="User Profile" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-secondary-900 truncate">{user?.firstName} {user?.lastName}</p>
                     <p className="text-sm text-secondary-500">{t('patient')}</p>
                   </div>
                 </div>
+                
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-3 py-2 text-red-600 bg-white hover:bg-red-50 rounded-lg transition-all active:scale-95 text-sm font-medium shadow-sm"
+                >
+                  <LogOut className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                  {t('logout')}
+                </button>
               </div>
 
               {/* Navigation */}
@@ -140,6 +205,7 @@ const PatientDashboard = () => {
                 {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
+                  const isBellIcon = item.icon === Bell;
                   
                   return (
                     <Link
@@ -152,23 +218,19 @@ const PatientDashboard = () => {
                           : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                      <div className="relative">
+                        <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                        {isBellIcon && unreadNotifications > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                            {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                          </span>
+                        )}
+                      </div>
                       {item.label}
                     </Link>
                   );
                 })}
               </nav>
-
-              {/* Logout */}
-              <div className="p-4 border-t border-secondary-200">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center w-full px-4 py-3 text-secondary-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all active:scale-95"
-                >
-                  <LogOut className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
-                  {t('logout')}
-                </button>
-              </div>
             </div>
           </aside>
         </div>
@@ -182,10 +244,11 @@ const PatientDashboard = () => {
             <Menu className="w-6 h-6 text-secondary-600" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
-              <Heart className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-gradient text-lg">HealthPass</span>
+            <img 
+              src="/logo.png" 
+              alt="HealthPass Logo" 
+              className="h-8 w-auto object-contain"
+            />
           </div>
           <LanguageSwitcher />
         </div>

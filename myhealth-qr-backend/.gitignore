@@ -26,3 +26,8 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Coverage
+coverage/
+.nyc_output/
+

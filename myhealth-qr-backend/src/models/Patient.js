@@ -68,7 +68,7 @@ const Patient = sequelize.define('Patient', {
   qrCodeToken: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
+    // unique: true,
     field: 'qr_code_token',
     comment: 'Token unique pour identifier le QR code'
   }
