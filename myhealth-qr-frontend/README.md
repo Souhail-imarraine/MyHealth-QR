@@ -81,7 +81,7 @@ cp .env.example .env
 2. **Configurer les variables d'environnement**
 ```env
 VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
+VITE_SOCKET_URL=https://localhost:5000
 ```
 
 ## 🚀 Démarrage

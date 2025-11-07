@@ -1,8 +1,9 @@
-import { QrCode, Camera, AlertCircle, CheckCircle, XCircle, Loader, ShieldAlert } from 'lucide-react';
+import { QrCode, Camera, AlertCircle, CheckCircle, XCircle, Loader, ShieldAlert, X } from 'lucide-react';
 import { useTranslation } from '../../utils/useTranslation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { scanPatientQR } from '../../services/doctorService';
 import { useAuthStore } from '../../store/authStore';
+import { Html5Qrcode } from 'html5-qrcode';
 
 const DoctorScanner = () => {
   const { t } = useTranslation();
@@ -11,6 +12,191 @@ const DoctorScanner = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerStatus, setScannerStatus] = useState('');
+  const html5QrCodeRef = useRef(null);
+  const isInitializingRef = useRef(false);
+
+  // Initialize and cleanup scanner
+  useEffect(() => {
+    if (showScanner && !html5QrCodeRef.current && !isInitializingRef.current) {
+      isInitializingRef.current = true;
+      setScannerStatus('Initialisation de la caméra...');
+      
+      const initScanner = async () => {
+        try {
+          console.log("🔍 Starting scanner initialization...");
+          
+          // Check if element exists
+          const element = document.getElementById("qr-reader");
+          if (!element) {
+            console.error("❌ qr-reader element not found in DOM");
+            setScannerStatus('Erreur: Élément scanner introuvable');
+            isInitializingRef.current = false;
+            return;
+          }
+          console.log("✅ qr-reader element found");
+
+          // Check if Html5Qrcode is available
+          if (!Html5Qrcode) {
+            console.error("❌ Html5Qrcode library not loaded");
+            setScannerStatus('Erreur: Bibliothèque scanner non chargée');
+            isInitializingRef.current = false;
+            return;
+          }
+
+          const html5QrCode = new Html5Qrcode("qr-reader");
+          console.log("✅ Html5Qrcode instance created");
+          html5QrCodeRef.current = html5QrCode;
+
+          const qrCodeSuccessCallback = (decodedText) => {
+            console.log("✅✅ QR Code detected:", decodedText);
+            console.log("📊 QR Code length:", decodedText.length);
+            console.log("📝 QR Code first 50 chars:", decodedText.substring(0, 50));
+            setQrCodeInput(decodedText);
+            setScannerStatus('✅ Code détecté! Fermeture...');
+            
+            // Stop scanning after short delay
+            setTimeout(() => {
+              if (html5QrCodeRef.current) {
+                html5QrCode.stop()
+                  .then(() => {
+                    console.log("Scanner stopped after successful scan");
+                    html5QrCodeRef.current = null;
+                    isInitializingRef.current = false;
+                    setShowScanner(false);
+                  })
+                  .catch(err => console.error("Error stopping scanner:", err));
+              }
+            }, 500);
+          };
+
+          const config = { 
+            fps: 10, 
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+              // Make the scan box 70% of the smaller dimension for better large QR code detection
+              let minEdgePercentage = 0.7;
+              let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+              let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+              return {
+                width: qrboxSize,
+                height: qrboxSize
+              };
+            },
+            aspectRatio: 1.0,
+            disableFlip: false,
+            // Better settings for various QR code sizes
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: true
+            },
+            // Improve detection for large/complex QR codes
+            rememberLastUsedCamera: true,
+            supportedScanTypes: []  // Support all scan types
+          };
+
+          console.log("🎥 Requesting camera access...");
+          setScannerStatus('Demande d\'accès à la caméra...');
+
+          // Get available cameras
+          const cameras = await Html5Qrcode.getCameras();
+          console.log("📷 Available cameras:", cameras);
+
+          if (cameras && cameras.length > 0) {
+            // Use the first available camera
+            const cameraId = cameras[0].id;
+            console.log("📹 Using camera:", cameraId, cameras[0].label);
+            setScannerStatus(`Démarrage caméra: ${cameras[0].label}...`);
+            
+            await html5QrCode.start(
+              cameraId,
+              config,
+              qrCodeSuccessCallback
+            );
+            
+            console.log("✅✅ Scanner started successfully!");
+            setScannerStatus('✅ Caméra active - Scannez le QR code');
+            isInitializingRef.current = false;
+          } else {
+            throw new Error("Aucune caméra disponible sur cet appareil");
+          }
+        } catch (err) {
+          console.error("❌ Error initializing scanner:", err);
+          console.error("Error details:", {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+          });
+          
+          let errorMessage = '';
+          let isCameraSecurityError = false;
+          
+          if (err.name === 'NotAllowedError') {
+            errorMessage = 'Permission caméra refusée. Autorisez l\'accès dans les paramètres du navigateur.';
+          } else if (err.name === 'NotFoundError') {
+            errorMessage = 'Aucune caméra trouvée sur cet appareil.';
+          } else if (err.name === 'NotReadableError') {
+            errorMessage = 'La caméra est utilisée par une autre application.';
+          } else if (err.message && err.message.includes('secure context')) {
+            errorMessage = 'La caméra nécessite HTTPS ou localhost. Utilisez localhost ou scannez manuellement.';
+            isCameraSecurityError = true;
+          } else {
+            errorMessage = err.message || 'Erreur inconnue';
+          }
+            
+          setScannerStatus(`❌ Erreur: ${errorMessage}`);
+          setError(isCameraSecurityError 
+            ? `⚠️ Caméra non disponible sur réseau HTTP. Solutions: 1) Accédez via https://localhost:5173 sur cet appareil, ou 2) Entrez le code manuellement.`
+            : `Erreur caméra: ${errorMessage}`
+          );
+          html5QrCodeRef.current = null;
+          isInitializingRef.current = false;
+          
+          // Don't auto-close on error, let user see the error and close manually
+        }
+      };
+
+      // Small delay to ensure DOM is ready
+      setTimeout(initScanner, 300);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (html5QrCodeRef.current && !isInitializingRef.current) {
+        console.log("🧹 Cleaning up scanner...");
+        html5QrCodeRef.current.stop()
+          .then(() => {
+            console.log("✅ Scanner cleanup complete");
+            html5QrCodeRef.current = null;
+          })
+          .catch(err => console.error("Cleanup error:", err));
+      }
+    };
+  }, [showScanner]);
+
+  const handleCloseScanner = () => {
+    console.log("Manually closing scanner...");
+    if (html5QrCodeRef.current) {
+      html5QrCodeRef.current.stop()
+        .then(() => {
+          console.log("Scanner stopped manually");
+          html5QrCodeRef.current = null;
+          isInitializingRef.current = false;
+          setShowScanner(false);
+          setScannerStatus('');
+        })
+        .catch(err => {
+          console.error("Error closing scanner:", err);
+          html5QrCodeRef.current = null;
+          isInitializingRef.current = false;
+          setShowScanner(false);
+          setScannerStatus('');
+        });
+    } else {
+      isInitializingRef.current = false;
+      setShowScanner(false);
+      setScannerStatus('');
+    }
+  };
 
   // Vérification de sécurité: Seulement les médecins peuvent accéder
   if (!user || user.role !== 'doctor') {
@@ -271,22 +457,78 @@ const DoctorScanner = () => {
                   className="input flex-1"
                   disabled={loading}
                 />
-                <button
-                  onClick={handleScanQRCode}
-                  disabled={loading || !qrCodeInput.trim()}
-                  className="btn bg-gradient-to-r from-accent-500 to-emerald-500 hover:from-accent-600 hover:to-emerald-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <Loader className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Camera className="w-5 h-5" />
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => showScanner ? handleCloseScanner() : setShowScanner(true)}
+                    className="btn bg-white border shadow-sm hover:bg-gray-50 p-2"
+                    title={showScanner ? 'Fermer la caméra' : 'Ouvrir la caméra'}
+                  >
+                    <Camera className="w-5 h-5 text-accent-600" />
+                  </button>
+
+                  <button
+                    onClick={handleScanQRCode}
+                    disabled={loading || !qrCodeInput.trim()}
+                    className="btn bg-gradient-to-r from-accent-500 to-emerald-500 hover:from-accent-600 hover:to-emerald-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <Loader className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <span className="font-medium">{t('sendRequest') || 'Envoyer'}</span>
+                    )}
+                  </button>
+                </div>
               </div>
               <p className="text-xs text-secondary-500 mt-2">
                 Le patient doit vous montrer son QR Code depuis son application
               </p>
             </div>
+            {/* Camera Scanner */}
+            {showScanner && (
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="label mb-0 text-base font-semibold">📷 Scanner avec la caméra</label>
+                  <button
+                    onClick={handleCloseScanner}
+                    className="p-2 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
+                    title="Fermer le scanner"
+                  >
+                    <X className="w-5 h-5 text-red-600" />
+                  </button>
+                </div>
+                
+                {/* Scanner Status */}
+                {scannerStatus && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800 text-center font-medium">
+                      {scannerStatus}
+                    </p>
+                  </div>
+                )}
+
+                {/* Scanner Container */}
+                <div className="w-full max-w-2xl mx-auto bg-gray-900 rounded-lg overflow-hidden shadow-xl">
+                  <div id="qr-reader" className="min-h-[500px] w-full"></div>
+                </div>
+                
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                  <p className="text-sm text-green-800 text-center font-semibold">
+                    🎯 <strong>Conseils pour un scan réussi:</strong>
+                  </p>
+                  <ul className="text-xs text-green-700 space-y-1">
+                    <li>✓ Tenez le téléphone/caméra stable pendant 2-3 secondes</li>
+                    <li>✓ Assurez-vous que le QR code est bien éclairé</li>
+                    <li>✓ Pour les grands QR codes: reculez la caméra de 20-30 cm</li>
+                    <li>✓ Pour les petits QR codes: rapprochez-vous</li>
+                    <li>✓ Alignez le QR code au centre du cadre de scan</li>
+                  </ul>
+                  <p className="text-xs text-green-600 text-center mt-2 italic">
+                    Le code sera automatiquement détecté et collé dans le champ ci-dessus
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

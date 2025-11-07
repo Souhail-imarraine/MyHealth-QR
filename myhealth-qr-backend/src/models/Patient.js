@@ -61,7 +61,7 @@ const Patient = sequelize.define('Patient', {
   qrCode: {
     type: DataTypes.TEXT,
     allowNull: true,
-    unique: true,
+    //unique: true,
     field: 'qr_code',
     comment: 'QR Code unique du patient en base64'
   },

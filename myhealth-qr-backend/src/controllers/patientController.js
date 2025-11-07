@@ -105,8 +105,14 @@ export const getQRCode = async (req, res) => {
       });
     }
 
-    // Si le QR code n'existe pas, le générer
-    if (!patient.qrCode || !patient.qrCodeToken) {
+    // Vérifier si le QR code existe et est au nouveau format (data:image/png;base64,...)
+    // Si l'ancien QR code contient du texte chiffré au lieu d'une image, le régénérer
+    const needsRegeneration = !patient.qrCode || 
+                              !patient.qrCodeToken || 
+                              !patient.qrCode.startsWith('data:image/');
+
+    if (needsRegeneration) {
+      console.log('🔄 Régénération du QR code pour le patient', patient.id);
       const { token, qrCode } = await generateQRCode(patient.id);
       await patient.update({
         qrCodeToken: token,
