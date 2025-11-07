@@ -145,23 +145,36 @@ export const scanQRCode = async (req, res) => {
       }
     });
 
-    if (existingRequest) {
-      return res.status(400).json({
-        success: false,
-        message: existingRequest.status === 'approved' 
-          ? 'Vous avez déjà accès au dossier de ce patient'
-          : 'Une demande d\'accès est déjà en attente pour ce patient',
-        data: existingRequest
-      });
-    }
+    let accessRequest;
 
-    // Créer une nouvelle demande d'accès
-    const accessRequest = await AccessRequest.create({
-      patientId: patient.id,
-      doctorId: doctor.id,
-      reason: reason || 'Consultation médicale',
-      status: 'pending'
-    });
+    if (existingRequest) {
+      if (existingRequest.status === 'approved') {
+        return res.status(200).json({
+          success: true,
+          message: 'Vous avez déjà accès au dossier de ce patient',
+          data: {
+            accessRequest: existingRequest,
+            patient: {
+              user: patient.user
+            },
+            alreadyApproved: true
+          }
+        });
+      }
+      
+      // Si la demande est en attente, renvoyer une notification au patient
+      accessRequest = existingRequest;
+      console.log(`📢 Renvoi de notification pour demande existante ${existingRequest.id}`);
+    } else {
+      // Créer une nouvelle demande d'accès
+      accessRequest = await AccessRequest.create({
+        patientId: patient.id,
+        doctorId: doctor.id,
+        reason: reason || 'Consultation médicale',
+        status: 'pending'
+      });
+      console.log(`📢 Nouvelle demande d'accès créée ${accessRequest.id}`);
+    }
 
     // Émettre une notification Socket.IO en temps réel au patient
     emitToUser(patient.user.id, 'new_access_request', {
@@ -176,14 +189,20 @@ export const scanQRCode = async (req, res) => {
 
     console.log(`📢 Notification envoyée au patient ${patient.user.id}`);
 
-    res.status(201).json({
+    const isNewRequest = !existingRequest || existingRequest.status === 'rejected';
+    
+    res.status(200).json({
       success: true,
-      message: 'Demande d\'accès envoyée au patient avec succès',
+      message: isNewRequest 
+        ? 'Demande d\'accès envoyée au patient avec succès'
+        : 'Notification renvoyée au patient avec succès',
       data: {
         accessRequest,
         patient: {
           user: patient.user
-        }
+        },
+        isNewRequest,
+        notificationSent: true
       }
     });
   } catch (error) {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -17,6 +17,8 @@ import { useTranslation } from '../utils/useTranslation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import MobileBottomNav from '../components/MobileBottomNav';
 import toast from 'react-hot-toast';
+import socketService from '../services/socketService';
+import notificationService from '../services/notificationService';
 
 // Import doctor components
 import DoctorHome from '../components/doctor/DoctorHome';
@@ -31,6 +33,41 @@ const DoctorDashboard = () => {
   const { user, logout } = useAuthStore();
   const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // Connexion Socket.IO et écoute des notifications
+  useEffect(() => {
+    if (user && user.id) {
+      // Connecter au serveur Socket.IO
+      socketService.connect(user.id);
+
+      // Demander la permission pour les notifications système
+      notificationService.requestPermission();
+
+      // Écouter les réponses aux demandes d'accès
+      socketService.on('access_request_response', (data) => {
+        console.log('📬 Réponse à la demande d\'accès reçue:', data);
+        
+        // Afficher la notification avec son
+        notificationService.showAccessResponseNotification(data);
+        
+        // Incrémenter le compteur de notifications non lues
+        setUnreadNotifications(prev => prev + 1);
+      });
+
+      // Nettoyer à la déconnexion
+      return () => {
+        socketService.off('access_request_response');
+      };
+    }
+  }, [user]);
+
+  // Réinitialiser le compteur quand on visite la page des patients
+  useEffect(() => {
+    if (location.pathname === '/doctor/patients') {
+      setUnreadNotifications(0);
+    }
+  }, [location.pathname]);
 
   const menuItems = [
     { path: '/doctor/dashboard', icon: LayoutDashboard, label: t('dashboard') },
@@ -90,12 +127,13 @@ const DoctorDashboard = () => {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+              const isPatientsIcon = item.icon === Users;
               
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-3 rounded-xl transition-all ${
+                  className={`flex items-center px-4 py-3 rounded-xl transition-all relative ${
                     isActive
                       ? 'bg-gradient-to-r from-accent-50 to-emerald-50 text-accent-700 font-semibold shadow-sm'
                       : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
@@ -103,6 +141,12 @@ const DoctorDashboard = () => {
                 >
                   <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
                   {item.label}
+                  {/* Badge de notification */}
+                  {isPatientsIcon && unreadNotifications > 0 && (
+                    <span className="absolute top-2 ltr:right-2 rtl:left-2 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                      {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -160,13 +204,14 @@ const DoctorDashboard = () => {
                 {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
+                  const isPatientsIcon = item.icon === Users;
                   
                   return (
                     <Link
                       key={item.path}
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center px-4 py-3 rounded-xl transition-all ${
+                      className={`flex items-center px-4 py-3 rounded-xl transition-all relative ${
                         isActive
                           ? 'bg-gradient-to-r from-accent-50 to-emerald-50 text-accent-700 font-semibold shadow-sm'
                           : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
@@ -174,6 +219,12 @@ const DoctorDashboard = () => {
                     >
                       <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
                       {item.label}
+                      {/* Badge de notification */}
+                      {isPatientsIcon && unreadNotifications > 0 && (
+                        <span className="absolute top-2 ltr:right-2 rtl:left-2 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                          {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}

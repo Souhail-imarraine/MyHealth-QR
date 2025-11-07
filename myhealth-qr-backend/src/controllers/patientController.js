@@ -1,5 +1,6 @@
 import { Patient, User, MedicalRecord, AccessRequest, Doctor } from '../models/index.js';
 import { generateQRCode } from '../utils/qrCodeGenerator.js';
+import { emitToUser } from '../utils/socketManager.js';
 
 /**
  * Récupérer le profil patient complet
@@ -273,7 +274,20 @@ export const respondToAccessRequest = async (req, res) => {
     }
 
     const request = await AccessRequest.findOne({
-      where: { id: requestId, patientId: patient.id }
+      where: { id: requestId, patientId: patient.id },
+      include: [
+        {
+          model: Doctor,
+          as: 'doctor',
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'firstName', 'lastName', 'email']
+            }
+          ]
+        }
+      ]
     });
 
     if (!request) {
@@ -287,6 +301,24 @@ export const respondToAccessRequest = async (req, res) => {
       status,
       responseDate: new Date()
     });
+
+    // Émettre une notification Socket.IO en temps réel au docteur
+    const patientUser = await User.findByPk(req.user.id);
+    const patientName = `${patientUser.firstName} ${patientUser.lastName}`;
+    
+    emitToUser(request.doctor.user.id, 'access_request_response', {
+      requestId: request.id,
+      status: status,
+      patientId: patient.id,
+      patientName: patientName,
+      message: status === 'approved' 
+        ? `${patientName} a accepté votre demande d'accès`
+        : `${patientName} a refusé votre demande d'accès`,
+      responseDate: request.responseDate,
+      reason: request.reason
+    });
+
+    console.log(`📢 Notification de réponse envoyée au docteur ${request.doctor.user.id}`);
 
     res.status(200).json({
       success: true,

@@ -112,6 +112,7 @@ const DoctorScanner = () => {
       }
     } catch (err) {
       console.error('Scan error:', err);
+      console.log('Error response:', err.response?.data);
       
       // Si erreur 401/403 = pas autorisé
       if (err.response?.status === 401 || err.response?.status === 403) {
@@ -121,6 +122,11 @@ const DoctorScanner = () => {
           accessDenied: true,
           message: 'Données sensibles protégées - Accès médecin requis'
         });
+      } else if (err.response?.status === 400) {
+        // Erreur 400 peut contenir des messages utiles
+        const errorMessage = err.response?.data?.message || 'Code QR invalide';
+        console.log('400 Error message:', errorMessage);
+        setError(errorMessage);
       } else {
         setError(err.response?.data?.message || 'Erreur lors du scan du QR Code');
       }
