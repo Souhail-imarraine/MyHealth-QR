@@ -52,7 +52,7 @@ const PatientDashboard = () => {
         <div className="flex flex-col flex-1">
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b border-secondary-200 bg-gradient-to-r from-accent-50 to-white">
-            <span className="ltr:ml-3 rtl:mr-3 text-xl font-bold text-gradient">MyHealth QR</span>
+            <span className="ltr:ml-3 rtl:mr-3 text-xl font-bold text-gradient">HealthPass</span>
           </div>
 
           {/* User Info */}
@@ -115,7 +115,7 @@ const PatientDashboard = () => {
                   <div className="w-9 h-9 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
                     <Heart className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-xl font-bold text-gradient">MyHealth QR</span>
+                  <span className="text-xl font-bold text-gradient">HealthPass</span>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="active:scale-95 transition-transform">
                   <X className="w-6 h-6 text-secondary-600" />
@@ -185,7 +185,7 @@ const PatientDashboard = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
               <Heart className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gradient text-lg">MyHealth QR</span>
+            <span className="font-bold text-gradient text-lg">HealthPass</span>
           </div>
           <LanguageSwitcher />
         </div>
