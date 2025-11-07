@@ -51,13 +51,13 @@ const DoctorDashboard = () => {
       <aside className="hidden lg:fixed lg:inset-y-0 ltr:lg:left-0 rtl:lg:right-0 lg:flex lg:w-64 lg:flex-col bg-white ltr:border-r rtl:border-l border-secondary-200 shadow-xl">
         <div className="flex flex-col flex-1">
           {/* Logo */}
-          <div className="mx-auto flex items-center gap-2">
-              <img 
-                src="../../public/logo.png" 
-                alt="HealthPass Logo" 
-                className="h-14 sm:h-16 md:h-20 lg:h-18 lg:w-48 w-auto object-contain"
-              />
-            </div>
+          <div className="flex items-center h-16 px-6 border-b border-secondary-200 bg-gradient-to-r from-accent-50 to-white">
+            <img 
+              src="/logo.png" 
+              alt="HealthPass Logo" 
+              className="h-8 sm:h-10 w-auto object-contain"
+            />
+          </div>
 
           {/* User Info */}
           <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
@@ -120,7 +120,11 @@ const DoctorDashboard = () => {
               {/* Header */}
               <div className="flex items-center justify-between h-16 px-6 border-b border-secondary-200 bg-gradient-to-r from-accent-50 to-white">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-gradient">HealthPass</span>
+                  <img 
+                    src="/logo.png" 
+                    alt="HealthPass Logo" 
+                    className="h-8 w-auto object-contain"
+                  />
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="active:scale-95 transition-transform">
                   <X className="w-6 h-6 text-secondary-600" />
@@ -191,12 +195,12 @@ const DoctorDashboard = () => {
             <Menu className="w-6 h-6 text-secondary-600" />
           </button>
           <div className="flex items-center gap-2">
-              <img 
-                src="../../public/logo.png" 
-                alt="HealthPass Logo" 
-                className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto object-contain"
-              />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="HealthPass Logo" 
+              className="h-8 w-auto object-contain"
+            />
+          </div>
           <LanguageSwitcher />
         </div>
 

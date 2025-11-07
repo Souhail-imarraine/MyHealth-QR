@@ -36,9 +36,11 @@ const PatientProfile = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-accent-500 to-emerald-500 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl">
-                  {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-                </div>
+                <img 
+                  src="/doctor.png" 
+                  alt="User Profile" 
+                  className="w-full h-full object-cover"
+                />
               )}
             </div>
             {isEditing && (

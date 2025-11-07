@@ -13,8 +13,12 @@ const DoctorProfile = () => {
       {/* Header */}
       <div className="card bg-gradient-to-br from-accent-50 to-emerald-50">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-3xl flex items-center justify-center text-white font-bold text-2xl sm:text-3xl shadow-2xl">
-            Dr. {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center shadow-2xl overflow-hidden">
+            <img 
+              src="/doctor.png" 
+              alt="Doctor Profile" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-secondary-900 mb-1">
