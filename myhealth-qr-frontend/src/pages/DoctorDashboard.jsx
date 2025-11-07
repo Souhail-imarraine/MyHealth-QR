@@ -61,7 +61,7 @@ const DoctorDashboard = () => {
 
           {/* User Info */}
           <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
                 <img 
                   src="/doctor.png" 
@@ -74,6 +74,15 @@ const DoctorDashboard = () => {
                 <p className="text-sm text-secondary-500">{t('doctor')}</p>
               </div>
             </div>
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center w-full px-3 py-2 text-red-600 bg-white hover:bg-red-50 rounded-lg transition-all active:scale-95 text-sm font-medium shadow-sm"
+            >
+              <LogOut className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+              {t('logout')}
+            </button>
           </div>
 
           {/* Navigation */}
@@ -98,17 +107,6 @@ const DoctorDashboard = () => {
               );
             })}
           </nav>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-secondary-200">
-            <button
-              onClick={handleLogout}
-              className="flex items-center w-full px-4 py-3 text-secondary-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all active:scale-95"
-            >
-              <LogOut className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
-              {t('logout')}
-            </button>
-          </div>
         </div>
       </aside>
 
@@ -133,10 +131,10 @@ const DoctorDashboard = () => {
 
               {/* User Info */}
               <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
                     <img 
-                      src="/doctor-avatar.svg" 
+                      src="/doctor.png" 
                       alt="Doctor Profile" 
                       className="w-full h-full object-cover"
                     />
@@ -146,6 +144,15 @@ const DoctorDashboard = () => {
                     <p className="text-sm text-secondary-500">{t('doctor')}</p>
                   </div>
                 </div>
+                
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-3 py-2 text-red-600 bg-white hover:bg-red-50 rounded-lg transition-all active:scale-95 text-sm font-medium shadow-sm"
+                >
+                  <LogOut className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                  {t('logout')}
+                </button>
               </div>
 
               {/* Navigation */}
@@ -171,17 +178,6 @@ const DoctorDashboard = () => {
                   );
                 })}
               </nav>
-
-              {/* Logout */}
-              <div className="p-4 border-t border-secondary-200">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center w-full px-4 py-3 text-secondary-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all active:scale-95"
-                >
-                  <LogOut className="w-5 h-5 ltr:mr-3 rtl:ml-3" />
-                  {t('logout')}
-                </button>
-              </div>
             </div>
           </aside>
         </div>

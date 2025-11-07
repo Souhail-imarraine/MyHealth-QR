@@ -37,7 +37,7 @@ const PatientProfile = () => {
                 />
               ) : (
                 <img 
-                  src="/doctor.png" 
+                  src="/patient.png" 
                   alt="User Profile" 
                   className="w-full h-full object-cover"
                 />

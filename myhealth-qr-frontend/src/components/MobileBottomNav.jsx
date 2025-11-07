@@ -1,9 +1,19 @@
-import { Home, QrCode, FileText, Bell, User } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { Home, QrCode, FileText, Bell, User, LogOut } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../utils/useTranslation';
+import { useAuthStore } from '../store/authStore';
+import toast from 'react-hot-toast';
 
 const MobileBottomNav = ({ role = 'patient' }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    toast.success(t('logoutSuccess'));
+    navigate('/');
+  };
 
   const patientLinks = [
     { to: '/patient/dashboard', icon: Home, label: t('home') },
@@ -49,6 +59,19 @@ const MobileBottomNav = ({ role = 'patient' }) => {
             )}
           </NavLink>
         ))}
+        
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center justify-center flex-1 h-full gap-1 text-red-500 hover:text-red-600 transition-all active:scale-95"
+        >
+          <div className="p-1.5 rounded-xl transition-all hover:bg-red-50">
+            <LogOut className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-medium">
+            {t('logout')}
+          </span>
+        </button>
       </div>
     </nav>
   );
