@@ -1,5 +1,6 @@
 import { Doctor, User, Patient, AccessRequest, MedicalRecord } from '../models/index.js';
 import { verifyQRCode } from '../utils/qrCodeGenerator.js';
+import { emitToUser } from '../utils/socketManager.js';
 
 /**
  * Récupérer le profil médecin complet
@@ -161,6 +162,19 @@ export const scanQRCode = async (req, res) => {
       reason: reason || 'Consultation médicale',
       status: 'pending'
     });
+
+    // Émettre une notification Socket.IO en temps réel au patient
+    emitToUser(patient.user.id, 'new_access_request', {
+      id: accessRequest.id,
+      doctorId: doctor.id,
+      doctorName: `Dr. ${doctor.user.firstName} ${doctor.user.lastName}`,
+      specialty: doctor.specialty,
+      reason: accessRequest.reason,
+      createdAt: accessRequest.createdAt,
+      message: `Dr. ${doctor.user.firstName} ${doctor.user.lastName} demande l'accès à votre dossier médical`
+    });
+
+    console.log(`📢 Notification envoyée au patient ${patient.user.id}`);
 
     res.status(201).json({
       success: true,

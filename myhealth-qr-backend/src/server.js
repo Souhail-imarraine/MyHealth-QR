@@ -7,6 +7,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { testConnection, sequelize } from './config/database.js';
 import { syncDatabase } from './models/index.js';
+import { setSocketIO } from './utils/socketManager.js';
 
 // Import des routes
 import authRoutes from './routes/authRoutes.js';
@@ -26,6 +27,9 @@ const io = new Server(httpServer, {
     methods: ['GET', 'POST']
   }
 });
+
+// Initialiser le socket manager
+setSocketIO(io);
 
 // Middlewares de sécurité
 app.use(helmet());
@@ -153,5 +157,3 @@ process.on('SIGINT', async () => {
 });
 
 startServer();
-
-export { io };
