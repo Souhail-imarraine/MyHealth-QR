@@ -55,7 +55,9 @@ const RegisterPage = () => {
         }
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || t('error'));
+      console.error('Register error:', error);
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || t('error');
+      toast.error(`Erreur: ${errorMsg}`);
     } finally {
       setLoading(false);
     }

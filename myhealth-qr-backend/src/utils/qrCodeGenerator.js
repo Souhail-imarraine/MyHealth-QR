@@ -52,25 +52,18 @@ const decryptQRData = (encryptedData) => {
  */
 export const generateQRCode = async (patientId) => {
   try {
-    // Générer un token unique
+    // Générer un token unique (gardé pour la compatibilité DB mais pas dans le QR)
     const qrToken = uuidv4();
     
-    // Créer les données à encoder dans le QR code
-    const qrData = {
-      patientId,
-      token: qrToken,
-      type: 'myhealth-qr',
-      timestamp: Date.now()
-    };
+    // QR CODE SIMPLIFIÉ: Juste l'ID du patient avec un préfixe court
+    // Format: "MH-{patientId}" (ex: "MH-1", "MH-42", etc.)
+    const qrData = `MH-${patientId}`;
 
-    // Chiffrer les données avant de les mettre dans le QR code
-    const encryptedData = encryptQRData(qrData);
-
-    // Générer le QR code en base64 avec les données CHIFFRÉES
-    const qrCodeImage = await QRCode.toDataURL(encryptedData, {
-      errorCorrectionLevel: 'H',
+    // Générer le QR code SIMPLE (sans chiffrement)
+    const qrCodeImage = await QRCode.toDataURL(qrData, {
+      errorCorrectionLevel: 'M', // M au lieu de H = QR plus simple
       type: 'image/png',
-      quality: 0.95,
+      quality: 0.92,
       margin: 1,
       color: {
         dark: '#1F2937',
@@ -91,26 +84,39 @@ export const generateQRCode = async (patientId) => {
 
 /**
  * Vérifie et décode les données d'un QR code
- * @param {String} qrData - Les données du QR code (chiffrées)
+ * @param {String} qrData - Les données du QR code (format simple: "MH-{patientId}")
  * @returns {Object} - Les données décodées
  */
 export const verifyQRCode = (qrData) => {
   try {
-    // Déchiffrer les données du QR code
-    const decoded = decryptQRData(qrData);
-    
-    if (decoded.type !== 'myhealth-qr') {
-      throw new Error('QR code invalide');
+    // QR CODE SIMPLIFIÉ: Format "MH-{patientId}"
+    if (!qrData || typeof qrData !== 'string') {
+      throw new Error('Données QR code invalides');
     }
 
-    // Vérifier que le QR code n'est pas trop ancien (24 heures max par exemple)
-    // const maxAge = 24 * 60 * 60 * 1000; // 24 heures
-    // if (Date.now() - decoded.timestamp > maxAge) {
-    //   throw new Error('QR code expiré');
-    // }
+    // Vérifier le format "MH-{id}" où id peut être un nombre OU un UUID
+    // Regex: MH- suivi de chiffres OU d'un UUID
+    const match = qrData.match(/^MH-(.+)$/);
+    if (!match) {
+      throw new Error('Format QR code invalide');
+    }
 
-    return decoded;
+    const patientId = match[1];
+
+    // Valider que c'est soit un nombre, soit un UUID valide
+    const isNumber = /^\d+$/.test(patientId);
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(patientId);
+    
+    if (!isNumber && !isUUID) {
+      throw new Error('ID patient invalide dans le QR code');
+    }
+
+    return {
+      patientId,
+      type: 'myhealth-qr',
+      timestamp: Date.now() // Pour compatibilité
+    };
   } catch (error) {
-    throw new Error('QR code invalide, corrompu ou expiré');
+    throw new Error('QR code invalide ou format incorrect');
   }
 };

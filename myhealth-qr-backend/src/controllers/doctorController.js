@@ -85,6 +85,8 @@ export const scanQRCode = async (req, res) => {
   try {
     const { qrData, reason } = req.body;
 
+    console.log('📱 Scan QR reçu:', { qrData, reason });
+
     // Vérifier que l'utilisateur est bien un médecin
     if (req.user.role !== 'doctor') {
       return res.status(403).json({
@@ -94,13 +96,15 @@ export const scanQRCode = async (req, res) => {
       });
     }
 
-    // Vérifier le QR code
+    // Vérifier le QR code (format simplifié: "MH-{patientId}")
+    console.log('🔍 Vérification QR code...');
     const decoded = verifyQRCode(qrData);
-    const { patientId, token } = decoded;
+    console.log('✅ QR décodé:', decoded);
+    const { patientId } = decoded;
 
-    // Vérifier que le patient existe
+    // Vérifier que le patient existe (plus besoin de vérifier le token)
     const patient = await Patient.findOne({
-      where: { id: patientId, qrCodeToken: token },
+      where: { id: patientId },
       include: [
         {
           model: User,
