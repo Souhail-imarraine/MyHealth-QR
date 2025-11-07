@@ -51,15 +51,23 @@ const DoctorDashboard = () => {
       <aside className="hidden lg:fixed lg:inset-y-0 ltr:lg:left-0 rtl:lg:right-0 lg:flex lg:w-64 lg:flex-col bg-white ltr:border-r rtl:border-l border-secondary-200 shadow-xl">
         <div className="flex flex-col flex-1">
           {/* Logo */}
-          <div className="flex items-center h-16 px-6 border-b border-secondary-200 bg-gradient-to-r from-accent-50 to-white">
-            <span className="ltr:ml-3 rtl:mr-3 text-xl font-bold text-gradient">HealthPass</span>
-          </div>
+          <div className="mx-auto flex items-center gap-2">
+              <img 
+                src="../../public/logo.png" 
+                alt="HealthPass Logo" 
+                className="h-14 sm:h-16 md:h-20 lg:h-18 lg:w-48 w-auto object-contain"
+              />
+            </div>
 
           {/* User Info */}
           <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0">
-                Dr. {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
+                <img 
+                  src="/doctor.png" 
+                  alt="Doctor Profile" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-secondary-900 truncate">Dr. {user?.firstName} {user?.lastName}</p>
@@ -122,8 +130,12 @@ const DoctorDashboard = () => {
               {/* User Info */}
               <div className="p-5 border-b border-secondary-200 bg-gradient-to-br from-accent-50 to-emerald-50">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0">
-                    Dr. {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
+                    <img 
+                      src="/doctor-avatar.svg" 
+                      alt="Doctor Profile" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-secondary-900 truncate">Dr. {user?.firstName} {user?.lastName}</p>
@@ -179,11 +191,12 @@ const DoctorDashboard = () => {
             <Menu className="w-6 h-6 text-secondary-600" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
-              <Heart className="w-4 h-4 text-white" />
+              <img 
+                src="../../public/logo.png" 
+                alt="HealthPass Logo" 
+                className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto object-contain"
+              />
             </div>
-            <span className="font-bold text-gradient text-lg">HealthPass</span>
-          </div>
           <LanguageSwitcher />
         </div>
 

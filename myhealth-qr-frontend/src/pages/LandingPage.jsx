@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useTranslation } from '../utils/useTranslation';
+// import logo from '../assets/logo.png'; // Décommentez si vous utilisez src/assets
 
 const LandingPage = () => {
   const { t } = useTranslation();
@@ -23,10 +24,11 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-4">
           <div className="flex justify-between items-center gap-2">
             <div className="flex items-center gap-2">
-              {/* <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
-                <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div> */}
-              <span className="text-base sm:text-xl md:text-2xl font-bold text-gradient">HealthPass</span>
+              <img 
+                src="../../public/logo.png" 
+                alt="HealthPass Logo" 
+                className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+              />
             </div>
             <nav className="hidden lg:flex gap-6 xl:gap-8">
               <a href="#features" className="text-secondary-600 hover:text-accent-600 transition font-medium">{t('features')}</a>
@@ -53,9 +55,6 @@ const LandingPage = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-secondary-900 mb-4 sm:mb-6 leading-tight">
               {t('heroTitle')}
             </h1>
-            <p className="text-lg sm:text-xl md:text-2x font-semibold mb-6 sm:mb-8">
-              {t('heroSubtitle')}
-            </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-12">
               <Link to="/register" className="btn bg-gradient-to-r from-accent-500 to-emerald-500 hover:from-accent-600 hover:to-emerald-600 text-white text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-3.5 inline-flex items-center justify-center shadow-lg hover:shadow-xl">
                 {t('getStarted')}
@@ -313,10 +312,11 @@ const LandingPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
-                  <Heart className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-lg sm:text-xl font-bold text-white">HealthPass</span>
+                <img 
+                  src="../../public/logo.png" 
+                  alt="HealthPass Logo" 
+                  className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto object-contain"
+                />
               </div>
               <p className="text-sm sm:text-base text-secondary-400">
                 {t('footerDescription')}
