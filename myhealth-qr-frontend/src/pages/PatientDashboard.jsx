@@ -16,6 +16,8 @@ import { useTranslation } from '../utils/useTranslation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import MobileBottomNav from '../components/MobileBottomNav';
 import toast from 'react-hot-toast';
+import socketService from '../services/socketService';
+import notificationService from '../services/notificationService';
 
 // Composants des pages
 import PatientHome from '../components/patient/PatientHome';
@@ -30,6 +32,41 @@ const PatientDashboard = () => {
   const { user, logout } = useAuthStore();
   const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // Connexion Socket.IO et écoute des notifications
+  useEffect(() => {
+    if (user && user.id) {
+      // Connecter au serveur Socket.IO
+      socketService.connect(user.id);
+
+      // Demander la permission pour les notifications système
+      notificationService.requestPermission();
+
+      // Écouter les nouvelles demandes d'accès
+      socketService.on('new_access_request', (data) => {
+        console.log('📬 Nouvelle demande d\'accès reçue:', data);
+        
+        // Afficher la notification avec son
+        notificationService.showAccessRequestNotification(data);
+        
+        // Incrémenter le compteur de notifications non lues
+        setUnreadNotifications(prev => prev + 1);
+      });
+
+      // Nettoyer à la déconnexion
+      return () => {
+        socketService.off('new_access_request');
+      };
+    }
+  }, [user]);
+
+  // Réinitialiser le compteur quand on visite la page des demandes
+  useEffect(() => {
+    if (location.pathname === '/patient/requests') {
+      setUnreadNotifications(0);
+    }
+  }, [location.pathname]);
 
   const menuItems = [
     { path: '/patient/dashboard', icon: LayoutDashboard, label: t('dashboard') },
@@ -90,6 +127,7 @@ const PatientDashboard = () => {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+              const isBellIcon = item.icon === Bell;
               
               return (
                 <Link
@@ -101,7 +139,14 @@ const PatientDashboard = () => {
                       : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                  <div className="relative">
+                    <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                    {isBellIcon && unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                        {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                      </span>
+                    )}
+                  </div>
                   {item.label}
                 </Link>
               );
@@ -160,6 +205,7 @@ const PatientDashboard = () => {
                 {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
+                  const isBellIcon = item.icon === Bell;
                   
                   return (
                     <Link
@@ -172,7 +218,14 @@ const PatientDashboard = () => {
                           : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                      <div className="relative">
+                        <Icon className={`w-5 h-5 ltr:mr-3 rtl:ml-3 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                        {isBellIcon && unreadNotifications > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                            {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                          </span>
+                        )}
+                      </div>
                       {item.label}
                     </Link>
                   );
