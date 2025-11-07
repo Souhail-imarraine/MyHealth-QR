@@ -130,15 +130,6 @@ const LoginPage = () => {
             </Link>
           </div>
         </div>
-
-        {/* Démo credentials */}
-        <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-sm">
-          <p className="font-medium text-emerald-900 mb-2">🎯 Démo :</p>
-          <p className="text-emerald-700">
-            <strong>{t('patient')}:</strong> patient@demo.com / password123<br />
-            <strong>{t('doctor')}:</strong> doctor@demo.com / password123
-          </p>
-        </div>
       </div>
     </div>
   );

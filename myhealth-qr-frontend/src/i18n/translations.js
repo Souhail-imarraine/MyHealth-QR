@@ -74,7 +74,7 @@ export const translations = {
     // Hero
     heroTitle: 'Votre dossier médical, toujours avec vous',
     heroSubtitle: 'Centralisez, sécurisez et partagez vos informations médicales',
-    getStarted: 'Commencer gratuitement',
+    getStarted: 'Commencer',
     learnMore: 'En savoir plus',
     
     // Footer
@@ -282,7 +282,7 @@ export const translations = {
     // Hero
     heroTitle: 'سجلك الطبي، معك دائماً',
     heroSubtitle: 'قم بتوحيد وتأمين ومشاركة معلوماتك الطبية بكل ثقة',
-    getStarted: 'ابدأ مجاناً',
+    getStarted: 'ابدأ',
     learnMore: 'اعرف المزيد',
     
     // Footer
@@ -490,7 +490,7 @@ export const translations = {
     // Hero
     heroTitle: 'Your medical record, always with you',
     heroSubtitle: 'Centralize, secure and share your medical information',
-    getStarted: 'Get started for free',
+    getStarted: 'Get started',
     learnMore: 'Learn more',
     
     // Footer
