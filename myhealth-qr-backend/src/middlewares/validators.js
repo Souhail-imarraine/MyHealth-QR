@@ -50,14 +50,35 @@ export const validateLogin = [
 
 // Validation pour le profil médecin
 export const validateDoctorProfile = [
-  body('specialization')
-    .trim()
-    .notEmpty()
-    .withMessage('La spécialisation est requise'),
+  body('firstName')
+    .optional()
+    .trim(),
+  body('lastName')
+    .optional()
+    .trim(),
+  body('phone')
+    .optional()
+    .trim(),
+  body('specialty')
+    .optional()
+    .trim(),
   body('licenseNumber')
-    .trim()
-    .notEmpty()
-    .withMessage('Le numéro de licence est requis'),
+    .optional()
+    .trim(),
+  body('hospital')
+    .optional()
+    .trim(),
+  body('graduationYear')
+    .optional()
+    .isInt({ min: 1900, max: new Date().getFullYear() })
+    .withMessage('Année de diplôme invalide'),
+  body('experience')
+    .optional()
+    .isInt({ min: 0, max: 60 })
+    .withMessage('Années d\'expérience invalides'),
+  body('bio')
+    .optional()
+    .trim(),
   handleValidationErrors
 ];
 

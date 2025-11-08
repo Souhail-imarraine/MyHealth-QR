@@ -7,7 +7,9 @@ import { emitToUser } from '../utils/socketManager.js';
  */
 export const getDoctorProfile = async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({
+    console.log('🔍 getDoctorProfile appelé pour userId:', req.user.id);
+    
+    let doctor = await Doctor.findOne({
       where: { userId: req.user.id },
       include: [
         {
@@ -18,19 +20,45 @@ export const getDoctorProfile = async (req, res) => {
       ]
     });
 
+    console.log('👨‍⚕️ Doctor trouvé:', doctor ? 'Oui' : 'Non');
+
+    // Si le profil médecin n'existe pas, le créer
     if (!doctor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Profil médecin non trouvé'
+      console.log('🏗️ Création du profil médecin...');
+      
+      doctor = await Doctor.create({
+        userId: req.user.id,
+        specialty: '',
+        licenseNumber: '',
+        hospital: '',
+        graduationYear: null,
+        experience: null,
+        bio: ''
+      });
+
+      console.log('✅ Profil médecin créé:', doctor.id);
+
+      // Récupérer le profil créé avec les informations de l'utilisateur
+      doctor = await Doctor.findOne({
+        where: { userId: req.user.id },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'email', 'firstName', 'lastName', 'phone']
+          }
+        ]
       });
     }
 
+    console.log('📤 Envoi de la réponse, doctor:', doctor ? 'Trouvé' : 'Null');
+    
     res.status(200).json({
       success: true,
       data: doctor
     });
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('❌ Erreur getDoctorProfile:', error);
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération du profil',
@@ -44,31 +72,75 @@ export const getDoctorProfile = async (req, res) => {
  */
 export const updateDoctorProfile = async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({ where: { userId: req.user.id } });
+    console.log('🔄 updateDoctorProfile appelé pour userId:', req.user.id);
+    console.log('📝 Données reçues:', req.body);
+    
+    let doctor = await Doctor.findOne({ where: { userId: req.user.id } });
+    const user = await User.findByPk(req.user.id);
 
-    if (!doctor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Profil médecin non trouvé'
+    const { 
+      firstName, 
+      lastName, 
+      phone, 
+      specialty, 
+      licenseNumber, 
+      hospital, 
+      graduationYear, 
+      experience, 
+      bio 
+    } = req.body;
+
+    // Mettre à jour les informations de l'utilisateur
+    if (firstName || lastName || phone) {
+      await user.update({
+        firstName: firstName || user.firstName,
+        lastName: lastName || user.lastName,
+        phone: phone || user.phone
       });
     }
 
-    const { specialization, hospital, address, city } = req.body;
+    // Créer ou mettre à jour le profil médecin
+    if (!doctor) {
+      doctor = await Doctor.create({
+        userId: req.user.id,
+        specialty: specialty || '',
+        licenseNumber: licenseNumber || '',
+        hospital: hospital || '',
+        graduationYear: graduationYear || null,
+        experience: experience || null,
+        bio: bio || ''
+      });
+    } else {
+      await doctor.update({
+        specialty: specialty !== undefined ? specialty : doctor.specialty,
+        licenseNumber: licenseNumber !== undefined ? licenseNumber : doctor.licenseNumber,
+        hospital: hospital !== undefined ? hospital : doctor.hospital,
+        graduationYear: graduationYear !== undefined ? graduationYear : doctor.graduationYear,
+        experience: experience !== undefined ? experience : doctor.experience,
+        bio: bio !== undefined ? bio : doctor.bio
+      });
+    }
 
-    await doctor.update({
-      specialization: specialization || doctor.specialization,
-      hospital: hospital || doctor.hospital,
-      address: address || doctor.address,
-      city: city || doctor.city
+    // Récupérer le profil complet mis à jour
+
+    const updatedDoctor = await Doctor.findOne({
+      where: { userId: req.user.id },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'email', 'firstName', 'lastName', 'phone']
+        }
+      ]
     });
 
     res.status(200).json({
       success: true,
       message: 'Profil mis à jour avec succès',
-      data: doctor
+      data: updatedDoctor
     });
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('❌ Erreur updateDoctorProfile:', error);
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la mise à jour',

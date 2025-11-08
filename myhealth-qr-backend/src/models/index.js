@@ -34,10 +34,19 @@ AccessRequest.belongsTo(Doctor, { foreignKey: 'doctorId', as: 'doctor' });
 // Synchronisation de la base de données
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ alter: true });
+    // Utiliser sync sans alter pour éviter les erreurs de clés
+    await sequelize.sync({ force: false });
     console.log('✅ Base de données synchronisée avec succès');
   } catch (error) {
     console.error('❌ Erreur lors de la synchronisation:', error);
+    console.log('🔄 Tentative de synchronisation sans modification des tables...');
+    try {
+      // Vérifier la connexion seulement
+      await sequelize.authenticate();
+      console.log('✅ Connexion à la base de données confirmée');
+    } catch (authError) {
+      console.error('❌ Erreur de connexion à la base de données:', authError);
+    }
   }
 };
 

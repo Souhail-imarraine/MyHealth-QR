@@ -25,7 +25,7 @@ const LandingPage = () => {
           <div className="flex justify-between items-center gap-2">
             <div className="flex items-center gap-2">
               <img 
-                src="../../public/logo.png" 
+                src="/logo.png" 
                 alt="HealthPass Logo" 
                 className="h-8 sm:h-10 md:h-12 w-auto object-contain"
               />
@@ -313,7 +313,7 @@ const LandingPage = () => {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 <img 
-                  src="../../public/logo.png" 
+                  src="/logo.png" 
                   alt="HealthPass Logo" 
                   className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto object-contain"
                 />

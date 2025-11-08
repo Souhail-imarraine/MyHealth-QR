@@ -16,19 +16,34 @@ const Doctor = sequelize.define('Doctor', {
       key: 'id'
     }
   },
-  specialization: {
+  specialty: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true,
+    field: 'specialty'
   },
   licenseNumber: {
     type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
+    allowNull: true,
     field: 'license_number'
   },
   hospital: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  graduationYear: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    field: 'graduation_year'
+  },
+  experience: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    field: 'experience'
+  },
+  bio: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'bio'
   },
   address: {
     type: DataTypes.TEXT,

@@ -9,7 +9,6 @@ const PatientHome = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-      {/* Welcome Header */}
       <div className="card bg-gradient-to-r from-accent-500 to-emerald-500 text-white shadow-xl">
         <div className="flex items-start justify-between">
           <div>
@@ -20,9 +19,6 @@ const PatientHome = () => {
               {t('manageMedicalRecord')}
             </p>
           </div>
-          {/* <div className="hidden sm:block w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-            <Heart className="w-6 h-6 text-white" />
-          </div> */}
         </div>
       </div>
 
