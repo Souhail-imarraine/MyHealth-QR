@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useTranslation } from '../utils/useTranslation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -56,11 +56,12 @@ const LoginPage = () => {
         {/* Logo */}
         <div className="text-center mb-6 sm:mb-8">
           <Link to="/" className="inline-block">
-            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-accent-500 to-emerald-500 rounded-2xl mb-4 shadow-lg">
-              <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-            </div>
+            <img 
+              src="/login.png" 
+              alt="MyHealth QR Logo" 
+              className="w-14 h-14 sm:w-16 sm:h-16 mb-4 drop-shadow-lg"
+            />
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-secondary-900">{t('login')}</h1>
         </div>
 
         {/* Formulaire */}

@@ -78,7 +78,7 @@ export const translations = {
     learnMore: 'En savoir plus',
     
     // Footer
-    product: 'Produit',
+    product: 'Sihaty Pass',
     company: 'Entreprise',
     legal: 'Légal',
     allRightsReserved: 'Tous droits réservés',
@@ -286,7 +286,7 @@ export const translations = {
     learnMore: 'اعرف المزيد',
     
     // Footer
-    product: 'المنتج',
+    product: 'صحتي باص',
     company: 'الشركة',
     legal: 'قانوني',
     allRightsReserved: 'جميع الحقوق محفوظة',
@@ -494,7 +494,7 @@ export const translations = {
     learnMore: 'Learn more',
     
     // Footer
-    product: 'Product',
+    product: 'Sihaty Pass',
     company: 'Company',
     legal: 'Legal',
     allRightsReserved: 'All rights reserved',

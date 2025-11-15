@@ -1,0 +1,19 @@
+# Dépendances
+node_modules/
+
+# Tests
+coverage/
+
+# Logs
+*.log
+
+# Environment local
+.env.local
+.env.development.local
+
+# IDE
+.vscode/
+.idea/
+
+# Vercel
+.vercel
