@@ -2,7 +2,17 @@
 
 Plateforme web complète permettant aux patients de centraliser leurs dossiers médicaux et de les partager en toute sécurité avec des professionnels de santé via un QR Code unique.
 
-## 📋 Présentation du projet
+> ✨ **Nouveau** : Configuration complète pour déploiement sur Vercel/Railway incluse !
+
+## � Liens Rapides
+
+- 📖 [Installation Locale](./INSTALLATION.md)
+- 🌐 [Guide de Déploiement Complet](./DEPLOYMENT_GUIDE.md)
+- ⚡ [Déploiement Rapide (5 min)](./QUICK_DEPLOY.md)
+- ✅ [Checklist de Déploiement](./DEPLOYMENT_CHECKLIST.md)
+- 📝 [Commandes Essentielles](./COMMANDS_REFERENCE.md)
+
+## �📋 Présentation du projet
 
 MyHealth QR est une solution numérique innovante qui révolutionne la gestion des dossiers médicaux en offrant :
 
@@ -12,6 +22,7 @@ MyHealth QR est une solution numérique innovante qui révolutionne la gestion d
 - 🔔 **Notifications temps réel** : Socket.io pour des notifications instantanées
 - 🎨 **Interface moderne** : Design professionnel et responsive sans couleur bleue
 - 🌐 **API RESTful complète** : Backend Node.js/Express robuste et scalable
+- ☁️ **Prêt pour le Cloud** : Déploiement facile sur Vercel/Railway
 
 ## 🛠️ Stack technique
 
@@ -280,16 +291,78 @@ VITE_SOCKET_URL=http://localhost:5000
 
 ## 🚀 Déploiement
 
+### 🌐 Déploiement sur Vercel/Railway
+
+**Guides de déploiement complets disponibles :**
+
+- 📖 **[Guide Complet](./DEPLOYMENT_GUIDE.md)** - Documentation détaillée pas à pas
+- ⚡ **[Déploiement Rapide](./QUICK_DEPLOY.md)** - Mise en production en 5 minutes
+- ✅ **[Checklist](./DEPLOYMENT_CHECKLIST.md)** - Liste de vérification complète
+- 📝 **[Commandes](./COMMANDS_REFERENCE.md)** - Référence des commandes essentielles
+
+### 🚀 Déploiement Express
+
+```bash
+# 1. Installer Vercel CLI
+npm install -g vercel
+
+# 2. Déployer le backend (ou utiliser Railway)
+cd myhealth-qr-backend
+vercel --prod
+
+# 3. Déployer le frontend
+cd ../myhealth-qr-frontend
+vercel --prod
+```
+
+### 🤖 Déploiement Automatique
+
+```powershell
+# Windows
+.\deploy.ps1 all
+
+# Linux/Mac
+chmod +x deploy.sh
+./deploy.sh all
+```
+
+### ☁️ Architecture Cloud Recommandée
+
+```
+Frontend (Vercel)
+    ↓
+Backend (Railway/Vercel)
+    ↓
+MySQL Database (Railway/PlanetScale)
+```
+
+**Fichiers de configuration inclus :**
+- ✅ `vercel.json` (backend + frontend)
+- ✅ `.env.production` (templates)
+- ✅ Scripts de déploiement automatique
+- ✅ GitHub Actions workflow (optionnel)
+
 ### Backend (Production)
 ```bash
+# Déploiement manuel
 npm run build
 npm start
+
+# Ou via Vercel/Railway
+vercel --prod
 ```
 
 ### Frontend (Production)
 ```bash
+# Build
 npm run build
+
 # Les fichiers sont dans dist/
+# Preview local
+npm run preview
+
+# Déploiement
+vercel --prod
 ```
 
 ## 📄 Licence
