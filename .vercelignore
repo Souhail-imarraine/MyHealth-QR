@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+myhealth-qr-backend
+.env
+.env.*
+!.env.production
+.git
+.vscode
+.vercel
+*.log
+coverage
+dist
